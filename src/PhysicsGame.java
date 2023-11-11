@@ -1,13 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class PhysicsGame {
     public static void main(String[] args) {
@@ -97,16 +99,16 @@ class ControlPanel extends JPanel {
 }
 
 class Circle extends JPanel {
-    private List<Ball> balls = new ArrayList<>();
-    private Ball draggedBall = null;
-    private int bounceCount = 0;
-    private int multiplier = 1;
-    private Consumer<Integer> bounceListener;
     private final int bounceThresholdForMultiplier = 100;
     private final int bounceThresholdForBall = 50;
     private final double friction = 0.99;
     private final double gravity = 0.2;
     private final double restitution = 0.6;
+    private List<Ball> balls = new ArrayList<>();
+    private Ball draggedBall = null;
+    private int bounceCount = 0;
+    private int multiplier = 1;
+    private Consumer<Integer> bounceListener;
     private Point lastMousePosition = new Point(0, 0);
 
     public Circle() {

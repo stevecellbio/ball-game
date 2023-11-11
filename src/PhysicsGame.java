@@ -1,3 +1,5 @@
+/*importing required modules*/
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -16,7 +18,7 @@ public class PhysicsGame {
         SwingUtilities.invokeLater(() -> createAndShowGUI());
     }
 
-    private static void createAndShowGUI() {
+    private static void createAndShowGUI() {    //creating the GUI
         JFrame frame = new JFrame("Physics Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         GamePanel gamePanel = new GamePanel();
@@ -26,7 +28,7 @@ public class PhysicsGame {
     }
 }
 
-class GamePanel extends JPanel {
+class GamePanel extends JPanel {     //creating the game panel
     private Circle circle;
     private ControlPanel controlPanel;
 
@@ -52,8 +54,8 @@ class GamePanel extends JPanel {
     }
 }
 
-class ControlPanel extends JPanel {
-    private Circle circle;
+class ControlPanel extends JPanel {     //creating the control panel
+    private final Circle circle;
     private JButton addBallButton;
     private JButton addMultiplierButton;
     private JButton saveProgressButton;
@@ -68,7 +70,7 @@ class ControlPanel extends JPanel {
         setupListeners();
     }
 
-    private void initializeComponents() {
+    private void initializeComponents() {   //initializing the components
         slider = new JSlider(JSlider.HORIZONTAL, 1, 100, 10);
         addBallButton = new JButton("Add Ball (Cost: " + circle.getBounceThresholdForBall() + " Bounces)");
         addMultiplierButton = new JButton("Add Multiplier (Cost: " + circle.getBounceThresholdForMultiplier() + " Bounces)");
@@ -77,7 +79,7 @@ class ControlPanel extends JPanel {
         multiplierLabel = new JLabel("Multiplier: 1");
     }
 
-    private void configureLayout() {
+    private void configureLayout() {    //configuring the layout
         add(slider);
         add(addBallButton);
         add(addMultiplierButton);
@@ -86,55 +88,66 @@ class ControlPanel extends JPanel {
         add(multiplierLabel);
     }
 
-    private void setupListeners() {
+    private void setupListeners() {    //setting up the listeners
         slider.addChangeListener(e -> circle.setRadius(slider.getValue()));
         addBallButton.addActionListener(e -> circle.addBall());
         addMultiplierButton.addActionListener(e -> circle.purchaseMultiplier());
         saveProgressButton.addActionListener(e -> circle.saveProgress());
-        circle.setBounceListener(count -> {
+        circle.setBounceListener(count -> { // bounce listener
             bounceLabel.setText("Bounces: " + count);
             multiplierLabel.setText("Multiplier: " + circle.getMultiplier());
         });
     }
 }
 
-class Circle extends JPanel {
-    private final int bounceThresholdForMultiplier = 100;
-    private final int bounceThresholdForBall = 50;
-    private final double friction = 0.99;
-    private final double gravity = 0.2;
-    private final double restitution = 0.6;
-    private List<Ball> balls = new ArrayList<>();
-    private Ball draggedBall = null;
-    private int bounceCount = 0;
-    private int multiplier = 1;
-    private Consumer<Integer> bounceListener;
-    private Point lastMousePosition = new Point(0, 0);
+class Circle extends JPanel {   //creating the circles
+    /*declaring variables used in physics and more*/private final int bounceThresholdForMultiplier = 100;
+    /*declaring variables used in physics and more*/private final int bounceThresholdForBall = 50;
+    /*declaring variables used in physics and more*/private final double friction = 0.99;
+    /*declaring variables used in physics and more*/private final double gravity = 0.2;
+    /*declaring variables used in physics and more*/private final double restitution = 0.6;
+    /*declaring variables used in physics and more*/private final List<Ball> balls = new ArrayList<>();
+    /*declaring variables used in physics and more*/private Ball draggedBall = null;
+    /*declaring variables used in physics and more*/private int bounceCount = 0;
+    /*declaring variables used in physics and more*/private int multiplier = 1;
+    /*declaring variables used in physics and more*/private Consumer<Integer> bounceListener;
+    /*declaring variables used in physics and more*/private Point lastMousePosition = new Point(0, 0);
 
-    public Circle() {
+    public Circle() {  //creating the circle
         setOpaque(false);
         balls.add(new Ball(400, 300, 10));
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (draggedBall != null) {
+                    /*calculating the physics*/
                     long currentTime = System.currentTimeMillis();
+                    /*calculating the physics*/
                     long timeDiff = currentTime - draggedBall.lastDragTime;
+                    /*calculating the physics*/
                     if (timeDiff > 0) {
+                        /*calculating the physics*/
                         draggedBall.horizontalSpeed = (e.getX() - lastMousePosition.x) / (double) timeDiff * 50; // Speed scaling factor
+                        /*calculating the physics*/
                         draggedBall.verticalSpeed = (e.getY() - lastMousePosition.y) / (double) timeDiff * 50; // Speed scaling factor
+                        /*calculating the physics*/
                     }
+                    /*calculating the physics*/
                     draggedBall.x = e.getX();
+                    /*calculating the physics*/
                     draggedBall.y = e.getY();
+                    /*calculating the physics*/
                     draggedBall.isDragging = true;
+                    /*calculating the physics*/
                     lastMousePosition = e.getPoint();
+                    /*calculating the physics*/
                     draggedBall.lastDragTime = currentTime;
                     repaint();
                 }
             }
         });
 
-        addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {       /*Looks for the mouse and if the mouse is on a ball, it gets dragged by the mouse.*/
             @Override
             public void mousePressed(MouseEvent e) {
                 for (Ball ball : balls) {
@@ -148,7 +161,7 @@ class Circle extends JPanel {
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) {
+            public void mouseReleased(MouseEvent e) {  //if the mouse is released, the ball propells in the direction of the mouse
                 if (draggedBall != null) {
                     draggedBall.isDragging = false;
                     draggedBall = null;

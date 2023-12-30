@@ -1,15 +1,12 @@
+// if anybody is reading this, I am sorry for the spahgetti code. I don't really want to make multiple files but you can if you want
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.List;
+import java.util.ArrayList;
 
 public class PhysicsGame {
     public static void main(String[] args) {
@@ -99,91 +96,24 @@ class ControlPanel extends JPanel {
 }
 
 class Circle extends JPanel {
-    private final int bounceThresholdForMultiplier = 100;
-    private final int bounceThresholdForBall = 50;
-    private final double friction = 0.99;
-    private final double gravity = 0.2;
-    private final double restitution = 0.6;
-    private final List<Ball> balls = new ArrayList<>();
-    private Ball draggedBall = null;
-    private int bounceCount = 0;
-    private int multiplier = 1;
-    private Consumer<Integer> bounceListener;
-    private Point lastMousePosition = new Point(0, 0);
-
-    public Circle() {
-        setOpaque(false);
-        balls.add(new Ball(400, 300, 10));
-        addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                if (draggedBall != null) {
-                    long currentTime = System.currentTimeMillis();
-                    long timeDiff = currentTime - draggedBall.lastDragTime;
-                    if (timeDiff > 0) {
-                        draggedBall.horizontalSpeed = (e.getX() - lastMousePosition.x) / (double) timeDiff * 50;
-                        draggedBall.verticalSpeed = (e.getY() - lastMousePosition.y) / (double) timeDiff * 50;
-                    }
-                    draggedBall.x = e.getX();
-                    draggedBall.y = e.getY();
-                    draggedBall.isDragging = true;
-                    lastMousePosition = e.getPoint();
-                    draggedBall.lastDragTime = currentTime;
-                    repaint();
-                }
-            }
-        });
-
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                for (Ball ball : balls) {
-                    if (ball.contains(e.getPoint())) {
-                        draggedBall = ball;
-                        lastMousePosition = e.getPoint();
-                        draggedBall.lastDragTime = System.currentTimeMillis();
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (draggedBall != null) {
-                    draggedBall.isDragging = false;
-                    draggedBall = null;
-                }
-            }
-        });
-    }
-
-    public int getMultiplier() {
-        return multiplier;
-    }
-
-    public int getBounceThresholdForMultiplier() {
-        return bounceThresholdForMultiplier;
-    }
-
-    public int getBounceThresholdForBall() {
-        return bounceThresholdForBall;
-    }
-
-    public void purchaseMultiplier() {
-        if (bounceCount >= bounceThresholdForMultiplier) {
-            multiplier++;
-            bounceCount -= bounceThresholdForMultiplier;
-            bounceListener.accept(bounceCount);
-        } else {
-            JOptionPane.showMessageDialog(this, "You need " +
-                    (bounceThresholdForMultiplier - bounceCount) + " more bounces to buy a multiplier!");
-        }
-    }
+    public final int bounceThresholdForMultiplier = 100;
+    public final int bounceThresholdForBall = 50;
+    public final double friction = 0.99;
+    public final double gravity = 0.2;
+    public final double restitution = 0.6;
+    public final List<Ball> balls = new ArrayList<>();
+    public Ball draggedBall = null;
+    public int bounceCount = 0;
+    public int multiplier = 1;
+    public Consumer<Integer> bounceListener;
+    public Point lastMousePosition = new Point(0, 0);
+    
 
     public void addBall() {
         if (bounceCount >= bounceThresholdForBall) {
-            int newRadius = 10; // Default radius for new balls
-            int newX = (int) (Math.random() * (getWidth() - 2 * newRadius) + newRadius);
+            System.out.println("Adding ball");
+            int newRadius = 10;
+            int newX = (int) (Math.random() * (getWidth() - 2 * newRadius) + newRadius;
             int newY = (int) (Math.random() * (getHeight() - 2 * newRadius) + newRadius);
             balls.add(new Ball(newX, newY, newRadius));
             bounceCount -= bounceThresholdForBall;
@@ -193,6 +123,30 @@ class Circle extends JPanel {
             JOptionPane.showMessageDialog(this, "You need " +
                     (bounceThresholdForBall - bounceCount) + " more bounces to buy a ball!");
         }
+    }
+
+    public String getMultiplier() {
+        return String.valueOf(multiplier);
+    }
+
+    public void purchaseMultiplier() {
+        if (bounceCount >= bounceThresholdForMultiplier) {
+            multiplier++;
+            bounceCount -= bounceThresholdForMultiplier;
+            bounceListener.accept(bounceCount);
+            JOptionPane.showMessageDialog(this, "You now have a multiplier of " + multiplier + "!");
+        } else {
+            JOptionPane.showMessageDialog(this, "You need " +
+                    (bounceThresholdForMultiplier - bounceCount) + " more bounces to buy a multiplier!");
+        }
+    }
+
+    public int getBounceThresholdForMultiplier() {
+        return bounceThresholdForMultiplier;
+    }
+
+    public String getBounceThresholdForBall() {
+        return String.valueOf(bounceThresholdForBall);
     }
 
     public void setBounceListener(Consumer<Integer> listener) {
@@ -240,7 +194,6 @@ class Circle extends JPanel {
             }
         }
     }
-
     public void move() {
         for (Ball ball : balls) {
             ball.move();
@@ -254,79 +207,129 @@ class Circle extends JPanel {
     }
 }
 
-class Ball {
-    int x, y;
-    int radius;
-    double verticalSpeed = 0, horizontalSpeed = 0;
-    boolean isDragging = false;
-    long lastDragTime = System.currentTimeMillis();
-    Point lastDragPoint = new Point(x, y);
-    Color ballColor;
+class Ball implements MouseListener, MouseMotionListener {
+    public double x, y, radius, velocityX, velocityY;
+    public long lastDragTime;
+    public double horizontalSpeed;
+    public double verticalSpeed;
+    public boolean isDragging;
 
-    public Ball(int x, int y, int radius) {
-        Random random = new Random(); // used to generate random colors
+    public Ball(double x, double y, double radius) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.lastDragPoint = new Point(x, y);
-        this.ballColor = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)); // random color for each new ball
+        this.velocityX = 0;
+        this.velocityY = 0;
     }
 
-    public boolean contains(Point p) {
-        double dx = p.x - x;
-        double dy = p.y - y;
-        return dx * dx + dy * dy <= radius * radius;
+    public boolean intersects(Ball other) {
+        double dx = this.x - other.x;
+        double dy = this.y - other.y;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < (this.radius + other.radius);
+    }
+
+    public double getX() {
+        return this.x;
+    }
+
+    public double getY() {
+        return this.y;
+    }
+
+    public double getRadius() {
+        return this.radius;
+    }
+
+    public double getVelocityX() {
+        return this.velocityX;
+    }
+
+    public double getVelocityY() {
+        return this.velocityY;
+    }
+
+    public void setVelocityX(double velocityX) {
+        this.velocityX = velocityX;
+    }
+
+    public void setVelocityY(double velocityY) {
+        this.velocityY = velocityY;
     }
 
     public void move() {
-        if (isDragging) return;
-
-        x += horizontalSpeed;
-        y += verticalSpeed;
-
-        boolean bounced = false;
-
-        // collision with the bottom
-        if (y + radius > getHeight()) {
-            verticalSpeed *= -restitution;
-            y = getHeight() - radius;
-            horizontalSpeed *= friction;
-            bounced = true;
-        }
-
-        // collision with the top
-        if (y - radius < 0) {
-            verticalSpeed *= -restitution;
-            y = radius;
-            horizontalSpeed *= friction;
-            bounced = true;
-        }
-
-        // collision with the right
-        if (x + radius > getWidth()) {
-            horizontalSpeed *= -restitution;
-            x = getWidth() - radius;
-            verticalSpeed *= friction;
-            bounced = true;
-        }
-
-        // collision with the left
-        if (x - radius < 0) {
-            horizontalSpeed *= -restitution;
-            x = radius;
-            verticalSpeed *= friction;
-            bounced = true;
-        }
-
-        if (!bounced) {
-            verticalSpeed += gravity; // apply gravity if no collision
-        } else {
-            incrementBounceCount(); // increment bounce count on collision
-        }
+        this.x += this.velocityX;
+        this.y += this.velocityY;
     }
 
     public void paint(Graphics g) {
-        g.setColor(ballColor);
-        g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        g.setColor(getRandomColor());
+        g.fillOval((int) (x - radius), (int) (y - radius), (int) (2 * radius), (int) (2 * radius));
+    }
+
+    public boolean contains(Point point) {
+        double dx = point.x - x;
+        double dy = point.y - y;
+        return dx * dx + dy * dy <= radius * radius;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        Point lastDragPoint = e.getPoint();
+        if (isDragging) {
+            Point mousePoint = e.getPoint();
+            double dx = mousePoint.x - lastDragPoint.x;
+            double dy = mousePoint.y - lastDragPoint.y;
+
+            x += dx;
+            y += dy;
+
+            lastDragPoint = mousePoint;
+            lastDragTime = System.currentTimeMillis();
+        }
+    }
+
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (contains(e.getPoint())) {
+            isDragging = true;
+            lastDragTime = System.currentTimeMillis();
+        }
+    }
+
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+       
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+    }
+
+ 
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        // TODO Auto-generated method stub
+    }
+    
+
+
+
+    private Color getRandomColor() {
+        Random random = new Random();
+        return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
     }
 }
